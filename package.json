@@ -1,0 +1,19 @@
+{
+	"name": "snakes-multiplayer",
+	"version": "0.1.0",
+	"author": "Kasimov Ildar",
+
+	"main": "app.js", 
+
+	"devDependencies" : {
+		"express" : "*",
+		"socket.io" : "*",
+		"mocha" : "*",
+		"chai" : "*"
+  	},
+
+	"scripts": {
+		"start" : "node app.js",
+		"test": "mocha tests --recursive --watch"
+	}
+}
