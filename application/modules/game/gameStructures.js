@@ -25,13 +25,12 @@ ExportedObject.MOVE_DIRECTIONS = {
 	DOWN : new Vector2D(0, -1)
 };
 
-ExportedObject.Snake = function(pos, color, name) {
+ExportedObject.Snake = function(body, color, name) {
 	var self = this;
 
-	this.mPos    = null;
 	this.mColor  = 0;
 	this.mName   = null;
-	this.mBody   = null; //head is 0
+	this.mBody   = null; //head is stored in 0 cell of the array
 	this.mScore  = 0;
 	this.mIsDead = false;
 
@@ -50,7 +49,7 @@ ExportedObject.Snake = function(pos, color, name) {
 		}
 
 		if (index == 0 && this.mBody.length == 1) {
-			return Die();
+			return this.Die();
 		}
 
 		var cutBodyPart = this.mBody.slice(index, this.mBody.length); //cut part of a body
@@ -86,7 +85,7 @@ ExportedObject.Snake = function(pos, color, name) {
 			var collisionPoint = -1;
 
 			if ((collisionPoint = _checkCollision()) >= 0) {	//self-intersected
-				return Cut(this.mBody[collisionPoint]);
+				return this.Cut(this.mBody[collisionPoint]);
 			}
 
 			return null;
@@ -111,7 +110,7 @@ ExportedObject.Snake = function(pos, color, name) {
 		var collisionPoint = -1;
 
 		if ((collisionPoint = _checkCollision()) >= 0) {	//self-intersected
-			return Cut(this.mBody[collisionPoint]);
+			return this.Cut(this.mBody[collisionPoint]);
 		}
 
 		return null;
@@ -143,10 +142,9 @@ ExportedObject.Snake = function(pos, color, name) {
 	};
 
 	function _init() {
-		self.mPos   = pos instanceof Vector2D ? pos : new Vector2D(0.0, 0.0);
 		self.mColor = color || "green";
 		self.mName  = name;
-		self.mBody  = [ self.mPos ];
+		self.mBody  = body;
 		
 		mFood  = [];
 	}
