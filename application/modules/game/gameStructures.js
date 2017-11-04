@@ -47,12 +47,12 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 				break;
 			}
 		}
-
+		
 		if (index == 0 && this.mBody.length == 1) {
 			return this.Die();
 		}
 
-		var cutBodyPart = this.mBody.slice(index, this.mBody.length); //cut part of a body
+		var cutBodyPart = this.mBody.slice(index); //cut part of a body
 
 		this.mBody = this.mBody.slice(0, index); // cut the current snake's body
 
@@ -105,17 +105,19 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 
 	this.ChangeDirection = function(dir) {
 		if (!(dir instanceof Vector2D)) {
-			return;
+			return false;
 		}
 
 		// the current movement direction is opposite to the specified one
 		// in this case the snake will move without changing previous direction's value
 		// in other words we should prevent a snake's reversing
 		if (mCurrDir != null && Math.abs(Vector2D.Dot(mCurrDir, dir) + 1) < 0.001) { 
-			return;
+			return false;
 		}
 
 		mCurrDir = dir;
+
+		return true;
 	};
 
 	this.Eat = function(food) {
