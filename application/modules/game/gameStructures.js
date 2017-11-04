@@ -3,7 +3,7 @@ var Vector2D = require("./../math/vector2d");
 var ExportedObject = {};
 
 ExportedObject.Scene = function(origin, sizes) {
-	this.mOrigin = origin instanceof Vector2D ? origin : new Vector2D(0.0, 0.0);
+	this.mOrigin = origin instanceof Vector2D ? origin : new Vector2D(0, 0);
 	this.mSizes  = sizes instanceof Vector2D ? sizes : new Vector2D(20, 20);
 };
 
@@ -13,7 +13,7 @@ ExportedObject.FOOD_TYPES = {
 };
 
 ExportedObject.Food = function(pos, type, weight) {
-	this.mPos    = pos instanceof Vector2D ? pos : new Vector2D(0.0, 0.0);
+	this.mPos    = pos instanceof Vector2D ? pos : new Vector2D(0, 0);
 	this.mType   = type || ExportedObject.FOOD_TYPES.FOOD;
 	this.mWeight = weight || 1;
 };
@@ -25,7 +25,7 @@ ExportedObject.MOVE_DIRECTIONS = {
 	DOWN : new Vector2D(0, -1)
 };
 
-ExportedObject.Snake = function(body, color, name) {
+ExportedObject.Snake = function(body, initialDir, color, name) {
 	var self = this;
 
 	this.mColor  = 0;
@@ -35,7 +35,7 @@ ExportedObject.Snake = function(body, color, name) {
 	this.mIsDead = false;
 
 	var mFood    = null; //the stack that contains eaten food
-	var mPrevDir = null;
+	var mCurrDir = null;
 
 	this.Cut = function(cutPoint) {
 		var index = -1;
@@ -59,27 +59,18 @@ ExportedObject.Snake = function(body, color, name) {
 		return cutBodyPart;
 	};
 
-	this.Move = function(dir) {
+	this.Move = function() {
 		var bodyLength = this.mBody.length;
-
-		// the current movement direction is opposite to previous one
-		// in this case the snake will move without changing previous direction's value
-		// in other words we should prevent a snake's reversing
-		if (mPrevDir != null && Math.abs(Vector2D.Dot(mPrevDir, dir) + 1) < 0.001) { 
-			dir = mPrevDir;
-		}
 
 		if (mFood.length > 0) { //we have eaten food, so move a new created body's part not the tail
 			var headPart = this.mBody[0];
 
-			var newBodyPart = Vector2D.Sum(headPart, dir);
+			var newBodyPart = Vector2D.Sum(headPart, mCurrDir);
 
 			//insert a new body part before the head
 			this.mBody.unshift(newBodyPart);
 
 			mFood.pop();
-
-			mPrevDir = dir;
 
 			//check self-intersection
 			var collisionPoint = -1;
@@ -92,19 +83,15 @@ ExportedObject.Snake = function(body, color, name) {
 		}
 
 		if (bodyLength == 1) {
-			this.mBody[0] = Vector2D.Sum(this.mBody[0], dir);
-
-			mPrevDir = dir;
+			this.mBody[0] = Vector2D.Sum(this.mBody[0], mCurrDir);
 
 			return null;
 		}
 
-		var newHeadPart = Vector2D.Sum(this.mBody[0], dir); //move it
+		var newHeadPart = Vector2D.Sum(this.mBody[0], mCurrDir); //move it
 
 		this.mBody.pop(); //remote tail
 		this.mBody.unshift(newHeadPart); //insert a new head
-
-		mPrevDir = dir;
 
 		//check self-intersection
 		var collisionPoint = -1;
@@ -116,6 +103,20 @@ ExportedObject.Snake = function(body, color, name) {
 		return null;
 	};
 
+	this.ChangeDirection = function(dir) {
+		if (!(dir instanceof Vector2D)) {
+			return;
+		}
+
+		// the current movement direction is opposite to the specified one
+		// in this case the snake will move without changing previous direction's value
+		// in other words we should prevent a snake's reversing
+		if (mCurrDir != null && Math.abs(Vector2D.Dot(mCurrDir, dir) + 1) < 0.001) { 
+			return;
+		}
+
+		mCurrDir = dir;
+	};
 
 	this.Eat = function(food) {
 		this.mScore += food.mWeight;
@@ -147,6 +148,8 @@ ExportedObject.Snake = function(body, color, name) {
 		self.mBody  = body;
 		
 		mFood  = [];
+
+		mCurrDir = initialDir instanceof Vector2D ? initialDir : ExportedObject.MOVE_DIRECTIONS.RIGHT;
 	}
 
 	_init();
