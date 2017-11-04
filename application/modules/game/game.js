@@ -1,4 +1,4 @@
-var GameStuctures = require("./gameStructures");
+var GameStructures = require("./gameStructures");
 var Vector2D = require("./../math/vector2d");
 
 function Game() {
