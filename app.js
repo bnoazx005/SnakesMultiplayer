@@ -20,17 +20,27 @@ server.listen(3000, function() {
     	console.log("A new user was connected");
 
     	socket.emit("onconnected", {});
-    });
 
-    io.on("onjoingame", function(socket) {
-    	console.log("User joined the game");
-    });
+		socket.on("onjoingame", function(data) {
+			if (data == undefined) {
+				return;
+			}
 
-    io.on("onchangedirection", function(socket) {
+			var playerId = gameInstance.AddPlayer(data.color, data.name);
 
-    });
+			console.log("User joined the game");
 
-    io.on("onsynchronize", function(socket) {
+			socket.emit("onjoined", { id : playerId });
+		});
 
+		socket.on("onchangedirection", function(data) {
+			//gameInstance.ChangePlayerDirection(socket)
+		});
+
+		socket.on("onsynchronize", function(data) {
+			gameInstance.Update(function() {
+				console.log("The game's state was updated");
+			});
+		});
     });
 });
