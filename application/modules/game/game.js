@@ -11,7 +11,7 @@ function Game(origin, sizes, initialAmountOfFood) {
 		return mPlayers.push(new GameStructures.Player([], GameStructures.MOVE_DIRECTIONS.RIGHT, color, name)) - 1;
 	};
 
-	this.RemovePlayer(playerId) {		
+	this.RemovePlayer = function(playerId) {
 		if (playerId < 0 || playerId >= mPlayers.length) {
 			return false;
 		}
