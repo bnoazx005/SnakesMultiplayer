@@ -12,6 +12,26 @@ function Game(origin, sizes, initialAmountOfFood) {
 	};
 
 	this.Update = function() {
+		var currPlayer = null;
+
+		for (var i = 0; i < mPlayers.length; ++i) {
+			currPlayer = mPlayers[i];
+
+			//check collisions
+			//check food
+			//check other snakes
+
+			//move
+			currPlayer.Move();
+		}
+	};
+
+	this.ChangePlayerDirection = function(playerId, dir) {
+		if (playerId < 0 || playerId >= mPlayers.length) {
+			return;
+		}
+
+		mPlayers[playerId].ChangeDirection(dir);
 	};
 
 	var _initFoodArray = function(sceneInstance, maxNumOfEntities) {
