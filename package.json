@@ -9,7 +9,8 @@
 		"express" : "*",
 		"socket.io" : "*",
 		"mocha" : "*",
-		"chai" : "*"
+		"chai" : "*",
+		"md5" : "*"
   	},
 
 	"scripts": {

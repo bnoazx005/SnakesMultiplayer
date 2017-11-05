@@ -8,7 +8,17 @@ function Game(origin, sizes, initialAmountOfFood) {
 	var mFood    = null;
 
 	this.AddPlayer = function(color, name) {
-		mPlayers.push(new GameStructures.Player([], GameStructures.MOVE_DIRECTIONS.RIGHT, color, name));
+		return mPlayers.push(new GameStructures.Player([], GameStructures.MOVE_DIRECTIONS.RIGHT, color, name)) - 1;
+	};
+
+	this.RemovePlayer(playerId) {		
+		if (playerId < 0 || playerId >= mPlayers.length) {
+			return false;
+		}
+
+		mPlayers = mPlayers.splice(playerId, 1);
+
+		return true;
 	};
 
 	this.Update = function(onFinishedCallback) {
