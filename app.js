@@ -16,5 +16,21 @@ app.use('/', Router);
 server.listen(3000, function() {
     console.log('server start at port 3000');
 
-    console.log(gameInstance);
+    io.on("connection", function(socket) {
+    	console.log("A new user was connected");
+
+    	socket.emit("onconnected", {});
+    });
+
+    io.on("onjoingame", function(socket) {
+    	console.log("User joined the game");
+    });
+
+    io.on("onchangedirection", function(socket) {
+
+    });
+
+    io.on("onsynchronize", function(socket) {
+
+    });
 });
