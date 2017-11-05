@@ -11,7 +11,7 @@ function Game(origin, sizes, initialAmountOfFood) {
 		mPlayers.push(new GameStructures.Player([], GameStructures.MOVE_DIRECTIONS.RIGHT, color, name));
 	};
 
-	this.Update = function() {
+	this.Update = function(onFinishedCallback) {
 		var currPlayer = null;
 
 		for (var i = 0; i < mPlayers.length; ++i) {
@@ -23,6 +23,10 @@ function Game(origin, sizes, initialAmountOfFood) {
 
 			//move
 			currPlayer.Move();
+		}
+
+		if (onFinishedCallback != undefined) {
+			onFinishedCallback();
 		}
 	};
 
