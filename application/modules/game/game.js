@@ -1,22 +1,40 @@
 var GameStructures = require("./gameStructures");
-var Vector2D = require("./../math/vector2d");
+var Vector2D       = require("./../math/vector2d");
+var md5            = require("md5");
 
 
 function Game(origin, sizes, initialAmountOfFood) {
-	var mScene   = null;
-	var mPlayers = null;
-	var mFood    = null;
+	var mScene         = null;
+	var mPlayers       = null;
+	var mPlayersHashes = null;
+	var mFood          = null;
 
 	this.AddPlayer = function(color, name) {
-		return mPlayers.push(new GameStructures.Player([], GameStructures.MOVE_DIRECTIONS.RIGHT, color, name)) - 1;
+		var playerId = mPlayers.push(new GameStructures.Snake([], GameStructures.MOVE_DIRECTIONS.RIGHT, color, name)) - 1;
+
+		var playerHash = md5(name + playerId);
+
+		mPlayers[playerId] = playerHash;
+
+		return {
+			"playerId" : playerId,
+			"playerHash" : playerHash
+		};
 	};
 
-	this.RemovePlayer = function(playerId) {		
-		if (playerId < 0 || playerId >= mPlayers.length) {
+	this.RemovePlayer = function(playerData) {
+		var playerId   = playerData.playerId || -1;
+		var playerHash = playerData.playerHash || "";
+
+		if (playerId < 0 ||
+			playerId >= mPlayers.length ||
+			playerHash != mPlayersHashes[playerId]) {
 			return false;
 		}
 
 		mPlayers = mPlayers.splice(playerId, 1);
+
+		mPlayersHashes = mPlayersHashes.splice(playerId, 1);
 
 		return true;
 	};
@@ -40,12 +58,16 @@ function Game(origin, sizes, initialAmountOfFood) {
 		}
 	};
 
-	this.ChangePlayerDirection = function(playerId, dir) {
-		if (playerId < 0 || playerId >= mPlayers.length) {
-			return;
+	this.ChangePlayerDirection = function(playerData, dir) {
+		if (playerId < 0 ||
+			playerId >= mPlayers.length || ||
+			playerHash != mPlayersHashes[playerId]) {
+			return false;
 		}
 
 		mPlayers[playerId].ChangeDirection(dir);
+
+		return true;
 	};
 
 	var _initFoodArray = function(sceneInstance, maxNumOfEntities) {
@@ -72,6 +94,8 @@ function Game(origin, sizes, initialAmountOfFood) {
 		mFood = _initFoodArray(mScene, initialAmountOfFood || 20);
 
 		mPlayers = [];
+
+		mPlayersHashes = [];
 	}
 
 	_init();
