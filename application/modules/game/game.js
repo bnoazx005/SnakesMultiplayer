@@ -12,7 +12,7 @@ function Game(origin, sizes, initialAmountOfFood) {
 	this.AddPlayer = function(color, name) {
 		var playerId = mPlayers.push(new GameStructures.Snake([], GameStructures.MOVE_DIRECTIONS.RIGHT, color, name)) - 1;
 
-		var playerHash = md5(name + playerId); // TODO: add random coefficient to make the hash more unpredictable
+		var playerHash = md5(name + playerId + (Math.floor(Math.random() * 65535) + 1));
 
 		mPlayersHashes[playerId] = playerHash;
 

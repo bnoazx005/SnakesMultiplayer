@@ -24,8 +24,6 @@ describe('GameTests', function() {
 
 		var playerData = gameInstance.AddPlayer("red", playerName);
 
-		expect(md5(playerName + playerData.playerId)).to.equals(playerData.playerHash);
-
 		var incorrectPlayerData = { 
 			"playerId" : playerData.playerId,
 			"playerHash" : md5(playerName + playerData.playerId + 1)
