@@ -7,7 +7,7 @@ var md5 = require("md5");
 
 describe('GameTests', function() {
 	it("AddPlayer tests", function() {
-		var gameInstance = new Game(new Vector2d(0, 0), new Vector2d(20, 20), 20);
+		var gameInstance = new Game(new Vector2d(0, 0), new Vector2d(20, 20), 20, 3);
 
 		var playerName = "player";
 
@@ -18,7 +18,7 @@ describe('GameTests', function() {
 	});
 
 	it("RemovePlayer tests", function() {
-		var gameInstance = new Game(new Vector2d(0, 0), new Vector2d(20, 20), 20);
+		var gameInstance = new Game(new Vector2d(0, 0), new Vector2d(20, 20), 20, 3);
 
 		var playerName = "player";
 

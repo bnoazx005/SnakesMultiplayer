@@ -3,14 +3,16 @@ var Vector2D       = require("./../math/vector2d");
 var md5            = require("md5");
 
 
-function Game(origin, sizes, initialAmountOfFood) {
+function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 	var mScene         = null;
 	var mPlayers       = null;
 	var mPlayersHashes = null;
 	var mFood          = null;
 
 	this.AddPlayer = function(color, name) {
-		var playerId = mPlayers.push(new GameStructures.Snake([], GameStructures.MOVE_DIRECTIONS.RIGHT, color, name)) - 1;
+		var playerId = mPlayers.push(new GameStructures.Snake(_generateSnakeBody(mScene, initialSnakeSize),
+															  GameStructures.MOVE_DIRECTIONS.RIGHT, 
+															  color, name)) - 1;
 
 		var playerHash = md5(name + playerId + (Math.floor(Math.random() * 65535) + 1));
 
@@ -86,6 +88,35 @@ function Game(origin, sizes, initialAmountOfFood) {
 		}
 
 		return foodArray;
+	};
+
+	var _generateSnakeBody = function(sceneInstance, snakeSize) {
+  		var isHorizontal = Math.floor(Math.random() * 2) == 0 ? true : false;
+
+  		var shiftValue = Math.floor(Math.random() * 2) == 0 ? 1 : -1;
+
+		var halfSizes = Vector2D.Mul(sceneInstance.mSizes, 0.5);
+
+  		var head = new Vector2D(Math.floor(Math.random() * sceneInstance.mSizes.x) - halfSizes.x,
+							    Math.floor(Math.random() * sceneInstance.mSizes.y) - halfSizes.y);
+
+  		var snakeBody = [head];
+
+  		var prevSegment = head;
+  		var currSegment = null;
+
+  		var dir = isHorizontal ? new Vector2D(shiftValue , 0) : new Vector2D(0, shiftValue);
+
+  		// initial snake will be placed as vertial or horizontal line
+  		for (var i = 1; i < snakeSize; ++i) {
+  			currSegment = Vector2D.Sum(prevSegment, dir);
+
+  			snakeBody.push(currSegment);
+
+  			prevSegment = currSegment;
+  		}
+
+  		return snakeBody;
 	};
 
 	function _init() {
