@@ -12,9 +12,9 @@ function Game(origin, sizes, initialAmountOfFood) {
 	this.AddPlayer = function(color, name) {
 		var playerId = mPlayers.push(new GameStructures.Snake([], GameStructures.MOVE_DIRECTIONS.RIGHT, color, name)) - 1;
 
-		var playerHash = md5(name + playerId);
+		var playerHash = md5(name + playerId); // TODO: add random coefficient to make the hash more unpredictable
 
-		mPlayers[playerId] = playerHash;
+		mPlayersHashes[playerId] = playerHash;
 
 		return {
 			"playerId" : playerId,
@@ -23,8 +23,8 @@ function Game(origin, sizes, initialAmountOfFood) {
 	};
 
 	this.RemovePlayer = function(playerData) {
-		var playerId   = playerData.playerId || -1;
-		var playerHash = playerData.playerHash || "";
+		var playerId   = playerData.playerId;
+		var playerHash = playerData.playerHash;
 
 		if (playerId < 0 ||
 			playerId >= mPlayers.length ||
@@ -60,7 +60,7 @@ function Game(origin, sizes, initialAmountOfFood) {
 
 	this.ChangePlayerDirection = function(playerData, dir) {
 		if (playerId < 0 ||
-			playerId >= mPlayers.length || ||
+			playerId >= mPlayers.length ||
 			playerHash != mPlayersHashes[playerId]) {
 			return false;
 		}
