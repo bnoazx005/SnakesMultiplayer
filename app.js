@@ -26,20 +26,22 @@ server.listen(3000, function() {
 				return;
 			}
 
-			var playerId = gameInstance.AddPlayer(data.color, data.name);
+			var playerData = gameInstance.AddPlayer(data.color, data.name);
 
 			console.log("User joined the game");
 
-			socket.emit("onjoined", { id : playerId });
+			socket.emit("onjoined", { id : playerData.playerId, hash : playerData.playerHash });
 		});
 
 		socket.on("onchangedirection", function(data) {
-			//gameInstance.ChangePlayerDirection(socket)
+			gameInstance.ChangePlayerDirection(data.playerData, data.direction);
 		});
 
 		socket.on("onsynchronize", function(data) {
 			gameInstance.Update(function() {
 				console.log("The game's state was updated");
+
+				socket.emit("onsynchronized", {});
 			});
 		});
     });
