@@ -11,7 +11,11 @@ describe('GameTests', function() {
 
 		var playerName = "player";
 
-		var playerData = gameInstance.AddPlayer("red", playerName);
+		var result = gameInstance.AddPlayer("red", playerName);
+
+		expect(result.status).to.equals("ok");
+
+		var playerData = result.data;
 
 		expect(playerData).to.have.property("playerId");
 		expect(playerData).to.have.property("playerHash");
@@ -22,14 +26,18 @@ describe('GameTests', function() {
 
 		var playerName = "player";
 
-		var playerData = gameInstance.AddPlayer("red", playerName);
+		var result = gameInstance.AddPlayer("red", playerName);
+
+		expect(result.status).to.equals("ok");
+
+		var playerData = result.data;
 
 		var incorrectPlayerData = { 
 			"playerId" : playerData.playerId,
-			"playerHash" : md5(playerName + playerData.playerId + 1)
+			"playerHash" : md5(playerName + 1)
 		};
 
-		expect(gameInstance.RemovePlayer(incorrectPlayerData)).to.equals(false);
-		expect(gameInstance.RemovePlayer(playerData)).to.equals(true);
+		expect(gameInstance.RemovePlayer(incorrectPlayerData).status).to.equals("fail");
+		expect(gameInstance.RemovePlayer(playerData).status).to.equals("ok");
 	});
 });

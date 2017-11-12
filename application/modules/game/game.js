@@ -118,11 +118,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 	};
 
 	this.Update = function(onFinishedCallback) {
-		var currPlayer = null;
-
-		for (var i = 0; i < mPlayers.length; ++i) {
-			currPlayer = mPlayers[i];
-
+		for (var currPlayer in mPlayers) {
 			//check collisions
 			//check food
 			//check other snakes
