@@ -8,7 +8,7 @@ window.onload = function() {
 	socket.on("onconnected", function() {
 		console.log("connected");
 
-		socket.emit("onjoingame", { color : "red", name : "player" });
+		socket.emit("onjoingame", { color : "red", name : "player" + Math.floor(Math.random() * 10) });
 	});
 
 	socket.on("onjoined", function(data) {

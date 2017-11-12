@@ -4,6 +4,24 @@ var md5            = require("md5");
 
 
 function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
+	var ERROR_TYPES = {
+		1 : "The specified player's name already exists",
+		2 : "Authentication error",
+
+		DEFAULT_ERROR : "Unknown error"
+	};
+
+	var SOCKET_MESSAGES = {
+		ON_CONNECTED : "onconnected",
+		ON_JOIN_GAME : "onjoingame",
+		ON_JOINED : "onjoined",
+		ON_CHANGE_DIRECTION : "onchangedirection",
+		ON_SYNCHRONIZE : "onsynchronize",
+		ON_SYNCHRONIZED : "onsynchronized",
+		ON_EXIT : "onexit",
+		ON_ERROR : "onerror"
+	};
+
 	var self           = this;
 	var mScene         = null;
 	var mPlayers       = null;
@@ -11,18 +29,24 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 	var mFood          = null;
 
 	this.AddPlayer = function(color, name) {
-		var playerId = mPlayers.push(new GameStructures.Snake(_generateSnakeBody(mScene, initialSnakeSize),
-															  GameStructures.MOVE_DIRECTIONS.RIGHT, 
-															  color, name)) - 1;
+		if (name in mPlayers) {
+			return _error(1);
+		}
 
-		var playerHash = md5(name + playerId + (Math.floor(Math.random() * 65535) + 1));
+		var player = new GameStructures.Snake(_generateSnakeBody(mScene, initialSnakeSize),
+											  GameStructures.MOVE_DIRECTIONS.RIGHT, 
+											  color, name);
 
-		mPlayersHashes[playerId] = playerHash;
+		mPlayers[name] = player;
 
-		return {
-			"playerId" : playerId,
+		var playerHash = md5(name + (Math.floor(Math.random() * 65535) + 1));
+
+		mPlayersHashes[name] = playerHash;
+
+		return _result({
+			"playerId" : name,
 			"playerHash" : playerHash
-		};
+		});
 	};
 
 	this.RemovePlayer = function(playerData) {
@@ -31,17 +55,14 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 		if (playerId == undefined ||
 			playerHash == undefined ||
-			playerId < 0 ||
-			playerId >= mPlayers.length ||
 			playerHash != mPlayersHashes[playerId]) {
-			return false;
+			return _error(2);
 		}
 
-		mPlayers.splice(playerId, 1);
+		delete mPlayers[playerId];
+		delete mPlayersHashes[playerId];
 
-		mPlayersHashes.splice(playerId, 1);
-
-		return true;
+		return _result({});
 	};
 
 	this.ProcessConnection = function(connection) {
@@ -52,38 +73,46 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		connection.on("connection", function(socket) {
 			console.log("A new user was connected");
 
-			socket.emit("onconnected", {});
+			socket.emit(SOCKET_MESSAGES.ON_CONNECTED, {});
 
-			socket.on("onjoingame", function(data) {
+			socket.on(SOCKET_MESSAGES.ON_JOIN_GAME, function(data) {
 				if (data == undefined) {
 					return;
 				}
 
-				var playerData = self.AddPlayer(data.color, data.name);
+				var result = self.AddPlayer(data.color, data.name);
 
-				console.log("User joined the game");
+				if (result.status != "ok") {
+					socket.emit(SOCKET_MESSAGES.ON_ERROR, result.data);
 
-				socket.emit("onjoined", { "playerId" : playerData.playerId, "playerHash" : playerData.playerHash });
+					return;
+				}
+
+				var playerData = result.data;
+
+				console.log("User [" + playerData.playerId + "] joined the game");
+
+				socket.emit(SOCKET_MESSAGES.ON_JOINED, { "playerId" : playerData.playerId, "playerHash" : playerData.playerHash });
 			});
 
-			socket.on("onchangedirection", function(data) {
+			socket.on(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, function(data) {
 				self.ChangePlayerDirection(data.playerData, data.direction);
 			});
 
-			socket.on("onsynchronize", function(data) {
+			socket.on(SOCKET_MESSAGES.ON_SYNCHRONIZE, function(data) {
 				self.Update(function() {
 					console.log("The game's state was updated");
 
-					socket.emit("onsynchronized", {});
+					socket.emit(SOCKET_MESSAGES.ON_SYNCHRONIZED, {});
 				});
 			});
 
-			socket.on("onexit", function(data) {
+			socket.on(SOCKET_MESSAGES.ON_EXIT, function(data) {
 				self.RemovePlayer(data);
 
 				socket.disconnect(true);
 
-				console.log("The user was disconnected");
+				console.log("The user [" + data.playerId + "] was disconnected");
 			});
 		});
 	};
@@ -108,15 +137,15 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 	};
 
 	this.ChangePlayerDirection = function(playerData, dir) {
-		if (playerId < 0 ||
-			playerId >= mPlayers.length ||
+		if (playerId == undefined ||
+			playerHash == undefined ||
 			playerHash != mPlayersHashes[playerId]) {
-			return false;
+			return _error(2);
 		}
 
 		mPlayers[playerId].ChangeDirection(dir);
 
-		return true;
+		return _result({});
 	};
 
 	var _initFoodArray = function(sceneInstance, maxNumOfEntities) {
@@ -166,14 +195,30 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
   		return snakeBody;
 	};
 
+	var _error = function(code) {
+		return {
+			status : "fail",
+			data : (code && ERROR_TYPES[code]) ? 
+				{ code: code, text: ERROR_TYPES[code] } :
+				{ code: DEFAULT_ERROR, text: ERROR[DEFAULT_ERROR] }
+		};
+	};
+
+	var _result = function(data) {
+		return {
+			status : "ok",
+			data : data
+		};
+	};
+
 	function _init() {
 		mScene = new GameStructures.Scene(origin, sizes);
 
 		mFood = _initFoodArray(mScene, initialAmountOfFood || 20);
 
-		mPlayers = [];
+		mPlayers = {};
 
-		mPlayersHashes = [];
+		mPlayersHashes = {};
 	}
 
 	_init();
