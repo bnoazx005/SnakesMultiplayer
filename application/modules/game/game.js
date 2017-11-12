@@ -101,8 +101,6 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 			socket.on(SOCKET_MESSAGES.ON_SYNCHRONIZE, function(data) {
 				self.Update(function() {
-					console.log("The game's state was updated");
-
 					socket.emit(SOCKET_MESSAGES.ON_SYNCHRONIZED, {});
 				});
 			});
