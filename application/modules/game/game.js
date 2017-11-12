@@ -29,15 +29,17 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		var playerId   = playerData.playerId;
 		var playerHash = playerData.playerHash;
 
-		if (playerId < 0 ||
+		if (playerId == undefined ||
+			playerHash == undefined ||
+			playerId < 0 ||
 			playerId >= mPlayers.length ||
 			playerHash != mPlayersHashes[playerId]) {
 			return false;
 		}
 
-		mPlayers = mPlayers.splice(playerId, 1);
+		mPlayers.splice(playerId, 1);
 
-		mPlayersHashes = mPlayersHashes.splice(playerId, 1);
+		mPlayersHashes.splice(playerId, 1);
 
 		return true;
 	};
@@ -61,7 +63,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 				console.log("User joined the game");
 
-				socket.emit("onjoined", { id : playerData.playerId, hash : playerData.playerHash });
+				socket.emit("onjoined", { "playerId" : playerData.playerId, "playerHash" : playerData.playerHash });
 			});
 
 			socket.on("onchangedirection", function(data) {
@@ -76,7 +78,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 				});
 			});
 
-			socket.on("disconnect", function(data) {
+			socket.on("onexit", function(data) {
 				self.RemovePlayer(data);
 
 				socket.disconnect(true);

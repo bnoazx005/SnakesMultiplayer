@@ -1,5 +1,7 @@
 var socket = io('http://localhost:3000');
 
+var Data = null;
+
 window.onload = function() {
 
 	// test code
@@ -10,10 +12,12 @@ window.onload = function() {
 	});
 
 	socket.on("onjoined", function(data) {
+		Data = data;
 		console.log(data);
 	});
 };
 
 window.onbeforeunload = function() {
-	socket.close();
+	socket.emit("onexit", Data);
+	//socket.close();
 };
