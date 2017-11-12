@@ -3,15 +3,17 @@ function View() {
 		ON_LOGIN : "onlogin",
 	};
 
-	var self          = this;
+	var self             = this;
 
-	var mSubscribers  = null;
+	var mSubscribers     = null;
 
-	var mLoginButton  = null;
+	var mLoginButton     = null;
 
-	var mLoginTextbox = null;
+	var mLoginTextbox    = null;
 
-	var mLoginPage    = null;
+	var mLoginPage       = null;
+
+	var mGameFieldCanvas = null;
 
 	this.Free = function() {
 
@@ -63,6 +65,10 @@ function View() {
 		}
 	}
 
+	this.Render = function() {
+
+	};
+
 	var _loginButtonClicked = function(eventData) {
 		self.Notify(EVENT_TYPES.ON_LOGIN, mLoginTextbox.value);
 	};
@@ -79,6 +85,8 @@ function View() {
 		mLoginTextbox = document.getElementById("login-textbox");
 
 		mLoginPage = document.getElementById("login-page-div");
+
+		mGameFieldCanvas = document.getElementById("game-field-canvas");
 
 		mLoginButton.addEventListener("click", _loginButtonClicked);
 	}	

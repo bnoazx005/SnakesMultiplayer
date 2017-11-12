@@ -29,8 +29,8 @@ function GameController(view) {
 
 	var _subscribeToSocketEvents = function(socket) {
 		mSocketInstance.on(SOCKET_MESSAGES.ON_JOINED, _setSessionData);
-
 		mSocketInstance.on(SOCKET_MESSAGES.ON_ERROR, _showErrorMessage);
+		mSocketInstance.on(SOCKET_MESSAGES.ON_SYNCHRONIZED, _updateFrame);
 	};
 
 	var _tryToLogin = function(loginName) {
@@ -60,6 +60,15 @@ function GameController(view) {
 		alert(data.text);
 	};
 
+	var _updateFrame = function() {
+		//we get the data from server, now we can use it to refresh the view
+	};
+
+	var _synchronizeState = function() {
+		// just ask server to give the current game state to us
+		mSocketInstance.emit(SOCKET_MESSAGES.ON_SYNCHRONIZE, {});
+	};
+
 	function _init() {
 		mView = view;
 
@@ -70,6 +79,8 @@ function GameController(view) {
 		mSocketInstance = io('http://localhost:3000');
 
 		_subscribeToSocketEvents(mSocketInstance);
+
+		setInterval(_synchronizeState, 1 / 60);
 	}
 
 	_init();
