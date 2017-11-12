@@ -4,6 +4,7 @@ var md5            = require("md5");
 
 
 function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
+	var self           = this;
 	var mScene         = null;
 	var mPlayers       = null;
 	var mPlayersHashes = null;
@@ -39,6 +40,50 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		mPlayersHashes = mPlayersHashes.splice(playerId, 1);
 
 		return true;
+	};
+
+	this.ProcessConnection = function(connection) {
+		if (connection == undefined) {
+			return;
+		}
+
+		connection.on("connection", function(socket) {
+			console.log("A new user was connected");
+
+			socket.emit("onconnected", {});
+
+			socket.on("onjoingame", function(data) {
+				if (data == undefined) {
+					return;
+				}
+
+				var playerData = self.AddPlayer(data.color, data.name);
+
+				console.log("User joined the game");
+
+				socket.emit("onjoined", { id : playerData.playerId, hash : playerData.playerHash });
+			});
+
+			socket.on("onchangedirection", function(data) {
+				self.ChangePlayerDirection(data.playerData, data.direction);
+			});
+
+			socket.on("onsynchronize", function(data) {
+				self.Update(function() {
+					console.log("The game's state was updated");
+
+					socket.emit("onsynchronized", {});
+				});
+			});
+
+			socket.on("disconnect", function(data) {
+				self.RemovePlayer(data);
+
+				socket.disconnect(true);
+
+				console.log("The user was disconnected");
+			});
+		});
 	};
 
 	this.Update = function(onFinishedCallback) {
