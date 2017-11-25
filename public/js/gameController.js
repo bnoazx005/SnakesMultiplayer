@@ -25,6 +25,8 @@ function GameController(view) {
 			mPlayerSessionData != undefined) {
 			mSocketInstance.emit("onexit", mPlayerSessionData);
 		}
+
+		document.removeEventListener("keydown", _processInput);
 	};
 
 	var _subscribeToSocketEvents = function(socket) {
@@ -69,6 +71,29 @@ function GameController(view) {
 		mSocketInstance.emit(SOCKET_MESSAGES.ON_SYNCHRONIZE, {});
 	};
 
+	var _processInput = function(event) {
+		var request = {};
+
+		request.playerData = mPlayerSessionData;
+
+		switch (event.keyCode) {
+			case 37: //left arrow key
+				request.dirCode = 0;
+				break;
+			case 38: //up arrow key
+				request.dirCode = 1;
+				break;
+			case 39: //right arrow key
+				request.dirCode = 2;
+				break;
+			case 40: //down arrow key
+				request.dirCode = 3;
+				break;
+		}
+
+		mSocketInstance.emit(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, request);
+	};
+
 	function _init() {
 		mView = view;
 
@@ -81,6 +106,8 @@ function GameController(view) {
 		_subscribeToSocketEvents(mSocketInstance);
 
 		setInterval(_synchronizeState, 1 / 60);
+
+		document.addEventListener("keydown", _processInput);
 	}
 
 	_init();
