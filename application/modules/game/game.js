@@ -33,9 +33,14 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 			return _error(1);
 		}
 
-		var player = new GameStructures.Snake(_generateSnakeBody(mScene, initialSnakeSize),
+		var player = null;
+
+		do {
+			player = new GameStructures.Snake(_generateSnakeBody(mScene, initialSnakeSize),
 											  GameStructures.MOVE_DIRECTIONS.RIGHT, 
 											  color, name);
+		}
+		while (_checkIntersections(player, mPlayers))
 
 		mPlayers[name] = player;
 
@@ -116,13 +121,13 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 	};
 
 	this.Update = function(onFinishedCallback) {
-		for (var currPlayer in mPlayers) {
+		for (var currPlayerId in mPlayers) {
+			//move
+			mPlayers[currPlayerId].Move();
+			
 			//check collisions
 			//check food
 			//check other snakes
-
-			//move
-			currPlayer.Move();
 		}
 
 		if (onFinishedCallback != undefined) {
@@ -167,19 +172,24 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 	var _initFoodArray = function(sceneInstance, maxNumOfEntities) {
 		var foodArray = [];
 
-		var pos = null;
-
 		var halfSizes = Vector2D.Mul(sceneInstance.mSizes, 0.5);
 
 		//this algorithm doesn't check up food overlapping
 		for (var i = 0; i < maxNumOfEntities; ++i) {
-			pos = new Vector2D(Math.floor(Math.random() * sceneInstance.mSizes.x) - halfSizes.x,
-							   Math.floor(Math.random() * sceneInstance.mSizes.y) - halfSizes.y);
-
-			foodArray[i] = new GameStructures.Food(pos);
+			do {
+				foodArray[i] = _generateFoodObject(sceneInstance, halfSizes);
+			}
+			while (_checkIntersections(foodArray[i], foodArray.slice(0, i)))
 		}
 
 		return foodArray;
+	};
+
+	var _generateFoodObject = function(sceneInstance, halfSceneSize) {
+		var pos = new Vector2D(Math.floor(Math.random() * sceneInstance.mSizes.x) - halfSceneSize.x,
+							   Math.floor(Math.random() * sceneInstance.mSizes.y) - halfSceneSize.y);
+
+		return new GameStructures.Food(pos);
 	};
 
 	var _generateSnakeBody = function(sceneInstance, snakeSize) {
@@ -209,6 +219,34 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
   		}
 
   		return snakeBody;
+	};
+
+	var _checkIntersections = function(intersectable, intersectablesArray) {
+		if (intersectable == undefined ||
+			intersectablesArray == undefined) {
+			return false;
+		}
+
+		if (Array.isArray(intersectablesArray)) {
+			var intersectablesArrayLength = intersectablesArray.length;
+
+			for (var i = 0; i< intersectablesArrayLength; ++i) {
+				if (intersectable != intersectablesArray[i] &&
+					intersectable.Intersect(intersectablesArray[i])) {
+					return true;
+				}
+			}
+		}
+		else {
+			for (var intersectableId in intersectablesArray) {
+				if (intersectable != intersectablesArray[intersectableId] &&
+					intersectable.Intersect(intersectablesArray[intersectableId])) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	};
 
 	var _error = function(code) {
