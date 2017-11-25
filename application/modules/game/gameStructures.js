@@ -7,15 +7,47 @@ ExportedObject.Scene = function(origin, sizes) {
 	this.mSizes  = sizes instanceof Vector2D ? sizes : new Vector2D(20, 20);
 };
 
+ExportedObject.Intersectable = function() {
+	this.Intersect = function(intersectable) {
+		return false;
+	};
+
+	this.GetBlocks = function() {
+		return [];
+	};
+};
+
 ExportedObject.FOOD_TYPES = {
 	FOOD : "food",
 	SNAKE : "snake"
 };
 
 ExportedObject.Food = function(pos, type, weight) {
-	this.mPos    = pos instanceof Vector2D ? pos : new Vector2D(0, 0);
-	this.mType   = type || ExportedObject.FOOD_TYPES.FOOD;
-	this.mWeight = weight || 1;
+	var self = new ExportedObject.Intersectable(); // Food derives Intersectable
+
+	self.mPos    = pos instanceof Vector2D ? pos : new Vector2D(0, 0);
+	self.mType   = type || ExportedObject.FOOD_TYPES.FOOD;
+	self.mWeight = weight || 1;
+
+	self.Intersect = function(intersectable) {
+		var intersectableBlocks = intersectable.GetBlocks();
+
+		var intersectableBlocksLength = intersectableBlocks.length;
+
+		for (var i = 0; i < intersectableBlocksLength; ++i) {
+			if (Vector2D.Equals(self.mPos, intersectableBlocks[i])) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
+	self.GetBlocks = function() {
+		return [self.mPos];
+	};
+
+	return self;
 };
 
 ExportedObject.MOVE_DIRECTIONS = {
@@ -26,49 +58,49 @@ ExportedObject.MOVE_DIRECTIONS = {
 };
 
 ExportedObject.Snake = function(body, initialDir, color, name) {
-	var self = this;
+	var self = new ExportedObject.Intersectable(); //Snake derives Intersectable
 
-	this.mColor  = 0;
-	this.mName   = null;
-	this.mBody   = null; //head is stored in 0 cell of the array
-	this.mScore  = 0;
-	this.mIsDead = false;
+	self.mColor  = 0;
+	self.mName   = null;
+	self.mBody   = null; //head is stored in 0 cell of the array
+	self.mScore  = 0;
+	self.mIsDead = false;
 
 	var mFood    = null; //the stack that contains eaten food
 	var mCurrDir = null;
 
-	this.Cut = function(cutPoint) {
+	self.Cut = function(cutPoint) {
 		var index = -1;
 
-		for (var i = 0; i < this.mBody.length; ++i) {
-			if (Vector2D.Equals(this.mBody[i], cutPoint)) {
+		for (var i = 0; i < self.mBody.length; ++i) {
+			if (Vector2D.Equals(self.mBody[i], cutPoint)) {
 				index = i;
 
 				break;
 			}
 		}
 		
-		if (index == 0 && this.mBody.length == 1) {
-			return this.Die();
+		if (index == 0 && self.mBody.length == 1) {
+			return self.Die();
 		}
 
-		var cutBodyPart = this.mBody.slice(index); //cut part of a body
+		var cutBodyPart = self.mBody.slice(index); //cut part of a body
 
-		this.mBody = this.mBody.slice(0, index); // cut the current snake's body
+		self.mBody = self.mBody.slice(0, index); // cut the current snake's body
 
 		return cutBodyPart;
 	};
 
-	this.Move = function() {
-		var bodyLength = this.mBody.length;
+	self.Move = function() {
+		var bodyLength = self.mBody.length;
 
 		if (mFood.length > 0) { //we have eaten food, so move a new created body's part not the tail
-			var headPart = this.mBody[0];
+			var headPart = self.mBody[0];
 
 			var newBodyPart = Vector2D.Sum(headPart, mCurrDir);
 
 			//insert a new body part before the head
-			this.mBody.unshift(newBodyPart);
+			self.mBody.unshift(newBodyPart);
 
 			mFood.pop();
 
@@ -76,34 +108,34 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 			var collisionPoint = -1;
 
 			if ((collisionPoint = _checkCollision()) >= 0) {	//self-intersected
-				return this.Cut(this.mBody[collisionPoint]);
+				return self.Cut(self.mBody[collisionPoint]);
 			}
 
 			return null;
 		}
 
 		if (bodyLength == 1) {
-			this.mBody[0] = Vector2D.Sum(this.mBody[0], mCurrDir);
+			self.mBody[0] = Vector2D.Sum(self.mBody[0], mCurrDir);
 
 			return null;
 		}
 
-		var newHeadPart = Vector2D.Sum(this.mBody[0], mCurrDir); //move it
+		var newHeadPart = Vector2D.Sum(self.mBody[0], mCurrDir); //move it
 
-		this.mBody.pop(); //remote tail
-		this.mBody.unshift(newHeadPart); //insert a new head
+		self.mBody.pop(); //remote tail
+		self.mBody.unshift(newHeadPart); //insert a new head
 
 		//check self-intersection
 		var collisionPoint = -1;
 
 		if ((collisionPoint = _checkCollision()) >= 0) {	//self-intersected
-			return this.Cut(this.mBody[collisionPoint]);
+			return self.Cut(self.mBody[collisionPoint]);
 		}
 
 		return null;
 	};
 
-	this.ChangeDirection = function(dir) {
+	self.ChangeDirection = function(dir) {
 		if (!(dir instanceof Vector2D)) {
 			return false;
 		}
@@ -120,16 +152,37 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 		return true;
 	};
 
-	this.Eat = function(food) {
-		this.mScore += food.mWeight;
+	self.Eat = function(food) {
+		self.mScore += food.mWeight;
 
 		mFood.push(food);
 	};
 
-	this.Die = function() {
-		this.mIsDead = true;
+	self.Die = function() {
+		self.mIsDead = true;
 
-		return this.mBody;
+		return self.mBody;
+	};
+
+	self.Intersect = function(intersectable) {
+		var intersectableBlocks = intersectable.GetBlocks();
+
+		var intersectableBlocksLength = intersectableBlocks.length;
+		var bodyLength                = self.mBody.length;
+
+		for (var i = 0; i < bodyLength; ++i) {
+			for (var j = 0; j < intersectableBlocksLength; ++j) {
+				if (Vector2D.Equals(self.mBody[i], intersectableBlocks[j])) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	};
+
+	self.GetBlocks = function() {
+		return self.mBody;
 	};
 
 	var _checkCollision = function() {
@@ -155,6 +208,8 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 	}
 
 	_init();
+
+	return self;
 };
 
 

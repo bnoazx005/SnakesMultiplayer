@@ -28,6 +28,40 @@ var _areArraysSame = function(arr1, arr2, comparator) {
 };
 
 describe('GameStructuresTests', function() {
+	describe("IntersectableTests", function() {
+		it("Snake Food intersected Test", function() {
+			var snakeParams = {
+				body :  [new Vector2D(0, 0), new Vector2D(1, 0)],
+				name : "snake",
+				color : "red"
+			};
+
+			var snake = new GameStructures.Snake(snakeParams.body, GameStructures.MOVE_DIRECTIONS.UP, snakeParams.color, snakeParams.name);
+
+			var food = new GameStructures.Food(new Vector2D(0, 0), GameStructures.FOOD_TYPES.FOOD, 1);
+
+			//food and snake are intersected
+			expect(snake.Intersect(food)).to.equals(true);
+			expect(food.Intersect(snake)).to.equals(true);
+		});
+
+		it("Snake Food not intersected Test", function() {
+			var snakeParams = {
+				body :  [new Vector2D(0, 0), new Vector2D(1, 0)],
+				name : "snake",
+				color : "red"
+			};
+
+			var snake = new GameStructures.Snake(snakeParams.body, GameStructures.MOVE_DIRECTIONS.UP, snakeParams.color, snakeParams.name);
+
+			var food = new GameStructures.Food(new Vector2D(2, 0), GameStructures.FOOD_TYPES.FOOD, 1);
+
+			//food and snake are intersected
+			expect(snake.Intersect(food)).to.equals(false);
+			expect(food.Intersect(snake)).to.equals(false);
+		});
+	});
+
 	describe('SnakeTests', function() {
 		it("Snake's constructor test", function() {
 			var snakeParams = {
