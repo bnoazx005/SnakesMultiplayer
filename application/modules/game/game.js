@@ -130,16 +130,38 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		}
 	};
 
-	this.ChangePlayerDirection = function(playerData, dir) {
+	this.ChangePlayerDirection = function(playerData, dirCode) {
+		if (playerData == undefined) {
+			return _error(2);
+		}
+
+		var playerId   = playerData.playerId;
+		var playerHash = playerData.playerHash;
+
 		if (playerId == undefined ||
 			playerHash == undefined ||
 			playerHash != mPlayersHashes[playerId]) {
 			return _error(2);
 		}
 
-		mPlayers[playerId].ChangeDirection(dir);
+		mPlayers[playerId].ChangeDirection(_dirCodeToVector(dirCode));
 
 		return _result({});
+	};
+
+	var _dirCodeToVector = function(dirCode) {
+		switch (dirCode) {
+			case 0:
+				return new Vector2D(-1, 0);
+			case 1:
+				return new Vector2D(0, 1);
+			case 2:
+				return new Vector2D(1, 0);
+			case 3:
+				return new Vector2D(0, -1);
+		}
+
+		return new Vector2D();
 	};
 
 	var _initFoodArray = function(sceneInstance, maxNumOfEntities) {
