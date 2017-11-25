@@ -72,6 +72,10 @@ function GameController(view) {
 	};
 
 	var _processInput = function(event) {
+		if (mPlayerSessionData == undefined) { // the player hasn't authorized yet, so we don't need to process his/her input
+			return;
+		}
+
 		var request = {};
 
 		request.playerData = mPlayerSessionData;
