@@ -15,6 +15,8 @@ function View() {
 
 	var mGameFieldCanvas = null;
 
+	var mRenderInstance  = null;
+
 	this.Free = function() {
 
 	};
@@ -66,7 +68,12 @@ function View() {
 	}
 
 	this.Render = function() {
+		mRenderInstance.DrawQuad(new Vector2D(550, 50), 25, "red");
+	};
 
+	this.Resize = function(width, height) {
+		mGameFieldCanvas.width = width;
+		mGameFieldCanvas.height = height;
 	};
 
 	var _loginButtonClicked = function(eventData) {
@@ -87,6 +94,8 @@ function View() {
 		mLoginPage = document.getElementById("login-page-div");
 
 		mGameFieldCanvas = document.getElementById("game-field-canvas");
+
+		mRenderInstance = new Render(mGameFieldCanvas);
 
 		mLoginButton.addEventListener("click", _loginButtonClicked);
 	}	

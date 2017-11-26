@@ -64,6 +64,7 @@ function GameController(view) {
 
 	var _updateFrame = function() {
 		//we get the data from server, now we can use it to refresh the view
+		mView.Render();
 	};
 
 	var _synchronizeState = function() {
