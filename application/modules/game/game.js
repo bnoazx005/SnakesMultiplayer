@@ -22,11 +22,12 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		ON_ERROR : "onerror"
 	};
 
-	var self           = this;
-	var mScene         = null;
-	var mPlayers       = null;
-	var mPlayersHashes = null;
-	var mFood          = null;
+	var self              = this;
+	var mScene            = null;
+	var mPlayers          = null;
+	var mPlayersHashes    = null;
+	var mFood             = null;
+	var mTickEventHandler = 0;
 
 	this.AddPlayer = function(color, name) {
 		if (name in mPlayers) {
@@ -102,13 +103,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 			socket.on(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, function(data) {
 				self.ChangePlayerDirection(data.playerData, data.direction);
-			});
-
-			socket.on(SOCKET_MESSAGES.ON_SYNCHRONIZE, function(data) {
-				self.Update(function() {
-					socket.emit(SOCKET_MESSAGES.ON_SYNCHRONIZED, {});
-				});
-			});
+			});	
 
 			socket.on(SOCKET_MESSAGES.ON_EXIT, function(data) {
 				self.RemovePlayer(data);
@@ -118,20 +113,54 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 				console.log("The user [" + data.playerId + "] was disconnected");
 			});
 		});
+
+		if (mTickEventHandler == 0) {
+			mTickEventHandler = setInterval(function() {
+				self.Update(function(dataPacket) {
+					connection.sockets.emit(SOCKET_MESSAGES.ON_SYNCHRONIZED, dataPacket); //broadcast message
+				});
+			}, 1000 / 60); //update every 16 ms						
+		}
+
 	};
 
 	this.Update = function(onFinishedCallback) {
+		var packet = {
+			food: [],
+			snakes: {}
+		};
+
+		var currSnakeBody = null;
+
+		var currSnakeBodyLength = 0;
+
+		var currSnakePacket = null;
+
 		for (var currPlayerId in mPlayers) {
 			//move
 			mPlayers[currPlayerId].Move();
-			
+
 			//check collisions
 			//check food
 			//check other snakes
+
+			currSnakePacket = [];
+
+			currSnakeBody = mPlayers[currPlayerId].GetBlocks();
+
+			currSnakeBodyLength = currSnakeBody.length;
+
+			for (var i = 0; i < currSnakeBodyLength; ++i) {
+				currSnakePacket.push({ x : currSnakeBody[i].x, y : currSnakeBody[i].y });
+			}
+
+			packet.snakes[currPlayerId] = currSnakePacket;
+
+			console.log(packet);
 		}
 
 		if (onFinishedCallback != undefined) {
-			onFinishedCallback();
+			onFinishedCallback(packet);
 		}
 	};
 
