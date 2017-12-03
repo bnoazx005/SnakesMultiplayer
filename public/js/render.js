@@ -12,9 +12,12 @@ function Render(canvas) {
 
 		var hSize = 0.5 * size;
 
+		var hWidth  = 0.5 * mCanvasInstance.width;
+		var hHeight = 0.5 * mCanvasInstance.height;
+
 		mCanvasContext.fillStyle = color;
 
-		mCanvasContext.fillRect(pos.x - hSize, pos.y - hSize, size, size);
+		mCanvasContext.fillRect(pos.x - hSize + hWidth, pos.y - hSize + hHeight, size, size);
 	};
 
 	this.DrawSprite = function(image, pos, size, color) {
@@ -47,8 +50,7 @@ function Render(canvas) {
 	};
 
 	this.Clear = function(color) {
-		mCanvasInstance.fillStyle = color;
-		mCanvasContext.fillRect(0, 0, mCanvasInstance.width, mCanvasInstance.height);
+		mCanvasContext.clearRect(0, 0, mCanvasInstance.width, mCanvasInstance.height);
 	};
 
 	function _init() {

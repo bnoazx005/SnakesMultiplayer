@@ -62,9 +62,13 @@ function GameController(view) {
 		alert(data.text);
 	};
 
-	var _updateFrame = function() {
+	var _updateFrame = function(dataPacket) {
+		if (dataPacket == undefined) {
+			return;
+		}
+
 		//we get the data from server, now we can use it to refresh the view
-		mView.Render();
+		mView.Render(dataPacket);
 	};
 
 	var _synchronizeState = function() {
@@ -97,6 +101,7 @@ function GameController(view) {
 		}
 
 		mSocketInstance.emit(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, request);
+		console.log("input: " + request);
 	};
 
 	function _init() {

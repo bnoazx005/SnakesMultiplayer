@@ -67,8 +67,24 @@ function View() {
 		}
 	}
 
-	this.Render = function() {
-		mRenderInstance.DrawQuad(new Vector2D(550, 50), 25, "red");
+	this.Render = function(dataPacket) {
+		mRenderInstance.Clear();
+
+		var food = dataPacket.food;
+
+		for (var i = 0; i < food.length; ++i) {
+			mRenderInstance.DrawQuad(new Vector2D(food[i].x, food[i].y), 10, "red");
+		}
+
+		var snakes = dataPacket.snakes;
+
+		for (var snakeId in snakes) {
+			var currSnake = snakes[snakeId];
+
+			for (var j = 0; j < currSnake.length; ++j) {
+				mRenderInstance.DrawQuad(new Vector2D(currSnake[j].x, currSnake[j].y), 10, "green");
+			}
+		}
 	};
 
 	this.Resize = function(width, height) {
