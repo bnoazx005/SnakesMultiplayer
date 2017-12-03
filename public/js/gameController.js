@@ -8,7 +8,8 @@ function GameController(view) {
 		ON_SYNCHRONIZED : "onsynchronized",
 		ON_EXIT : "onexit",
 		ON_ERROR : "onerror",
-		ON_GAME_OVER : "ongameover"
+		ON_GAME_OVER : "ongameover",
+		ON_RESTART : "onrestart"
 	};
 
 	var mColorsArray = [
@@ -50,7 +51,7 @@ function GameController(view) {
 
 		console.log("Player [" + playerData.playerId + "] joined the game");
 
-		mView.DisableLoginPage();
+		mView.DisablePage(mView.GetPagesNames().LOGIN_PAGE);
 	};
 
 	var _getRandomColor = function() {
@@ -66,7 +67,7 @@ function GameController(view) {
 	};
 
 	var _notifyGameOver = function(data) {
-		alert("GAME OVER" + data.score);
+		mView.ShowGameOverScore(data.score);
 	};
 
 	var _updateFrame = function(dataPacket) {
@@ -76,11 +77,6 @@ function GameController(view) {
 
 		//we get the data from server, now we can use it to refresh the view
 		mView.Render(dataPacket);
-	};
-
-	var _synchronizeState = function() {
-		// just ask server to give the current game state to us
-		mSocketInstance.emit(SOCKET_MESSAGES.ON_SYNCHRONIZE, {});
 	};
 
 	var _processInput = function(event) {
@@ -123,8 +119,6 @@ function GameController(view) {
 		mSocketInstance = io('http://localhost:3000');
 
 		_subscribeToSocketEvents(mSocketInstance);
-
-		setInterval(_synchronizeState, 1 / 60);
 
 		document.addEventListener("keydown", _processInput);
 	}

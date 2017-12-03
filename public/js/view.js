@@ -3,22 +3,36 @@ function View() {
 		ON_LOGIN : "onlogin",
 	};
 
-	var self             = this;
+	var PAGES = {
+		LOGIN_PAGE : "login_page",
+		GAME_OVER_PAGE : "gameover_page",
+		INGAME_PAGE : "ingame_page"
+	};
 
-	var mSubscribers     = null;
+	var self                = this;
 
-	var mLoginButton     = null;
+	var mSubscribers        = null;
 
-	var mLoginTextbox    = null;
+	var mLoginButton        = null;
 
-	var mLoginPage       = null;
+	var mLoginTextbox       = null;
 
-	var mGameFieldCanvas = null;
+	var mGameFieldCanvas    = null;
 
-	var mRenderInstance  = null;
+	var mRenderInstance     = null;
+
+	var mPages              = null;
+
+	var mCurrActivePageName = null;
+
+	var mScoreLabel         = null;
 
 	this.Free = function() {
 
+	};
+
+	this.GetPagesNames = function() {
+		return PAGES;
 	};
 
 	this.Subscribe = function(eventType, callback) {
@@ -55,15 +69,29 @@ function View() {
 		return EVENT_TYPES;
 	};
 
-	this.EnableLoginPage = function() {
-		if (mLoginPage && mLoginPage.classList.contains("inactive")) {
-			mLoginPage.classList.remove("inactive");
+	this.EnablePage = function(pageName) {
+		if (mCurrActivePageName != undefined) {
+			self.DisablePage(mCurrActivePageName);
+		}
+
+		if (mCurrActivePageName == PAGES.INGAME_PAGE) {
+			return;
+		}
+
+		if (mPages[pageName] && mPages[pageName].classList.contains("inactive")) {
+			mPages[pageName].classList.remove("inactive");
+
+			mCurrActivePageName = pageName;
 		}
 	};
 
-	this.DisableLoginPage = function() {
-		if (mLoginPage && !mLoginPage.classList.contains("inactive")) {
-			mLoginPage.classList.add("inactive");
+	this.DisablePage = function(pageName) {
+		if (pageName == PAGES.INGAME_PAGE) {
+			return;
+		}
+
+		if (mPages[pageName] && !mPages[pageName].classList.contains("inactive")) {
+			mPages[pageName].classList.add("inactive");
 		}
 	}
 
@@ -92,6 +120,12 @@ function View() {
 		mGameFieldCanvas.height = height;
 	};
 
+	this.ShowGameOverScore = function(score) {
+		self.EnablePage(PAGES.GAME_OVER_PAGE);
+
+		mScoreLabel.innerHTML = score;
+	};
+
 	var _loginButtonClicked = function(eventData) {
 		self.Notify(EVENT_TYPES.ON_LOGIN, mLoginTextbox.value);
 	};
@@ -103,17 +137,28 @@ function View() {
 			mSubscribers[EVENT_TYPES[key]] = [];
 		}
 
+		mPages = {};
+
 		mLoginButton = document.getElementById("login-button");
 
 		mLoginTextbox = document.getElementById("login-textbox");
 
-		mLoginPage = document.getElementById("login-page-div");
+		mPages[PAGES.LOGIN_PAGE]     = document.getElementById("login-page-div");
+		mPages[PAGES.GAME_OVER_PAGE] = document.getElementById("game-over-div");
+
+		for (var pageName in mPages) {
+			self.DisablePage(pageName);
+		}
+
+		self.EnablePage(PAGES.LOGIN_PAGE);
 
 		mGameFieldCanvas = document.getElementById("game-field-canvas");
 
 		mRenderInstance = new Render(mGameFieldCanvas);
 
 		mLoginButton.addEventListener("click", _loginButtonClicked);
+
+		mScoreLabel = document.getElementById("score-label");
 	}	
 
 	_init();
