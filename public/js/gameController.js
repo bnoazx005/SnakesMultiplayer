@@ -24,6 +24,7 @@ function GameController(view) {
 		if (mSocketInstance != undefined &&
 			mPlayerSessionData != undefined) {
 			mSocketInstance.emit("onexit", mPlayerSessionData);
+			console.log("disconnected");
 		}
 
 		document.removeEventListener("keydown", _processInput);
@@ -100,8 +101,10 @@ function GameController(view) {
 				break;
 		}
 
-		mSocketInstance.emit(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, request);
-		console.log("input: " + request);
+		if (request.dirCode != undefined) {
+			mSocketInstance.emit(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, request);
+			console.log("input: " + request.dirCode);
+		}
 	};
 
 	function _init() {

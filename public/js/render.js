@@ -17,7 +17,7 @@ function Render(canvas) {
 
 		mCanvasContext.fillStyle = color;
 
-		mCanvasContext.fillRect(pos.x - hSize + hWidth, pos.y - hSize + hHeight, size, size);
+		mCanvasContext.fillRect(size * pos.x - hSize + hWidth, -size * pos.y - hSize + hHeight, size, size);
 	};
 
 	this.DrawSprite = function(image, pos, size, color) {

@@ -4,6 +4,8 @@ var md5            = require("md5");
 
 
 function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
+	var GAME_SPEED = 250;
+
 	var ERROR_TYPES = {
 		1 : "The specified player's name already exists",
 		2 : "Authentication error",
@@ -102,7 +104,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 			});
 
 			socket.on(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, function(data) {
-				self.ChangePlayerDirection(data.playerData, data.direction);
+				self.ChangePlayerDirection(data.playerData, data.dirCode);
 			});	
 
 			socket.on(SOCKET_MESSAGES.ON_EXIT, function(data) {
@@ -119,7 +121,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 				self.Update(function(dataPacket) {
 					connection.sockets.emit(SOCKET_MESSAGES.ON_SYNCHRONIZED, dataPacket); //broadcast message
 				});
-			}, 1000 / 60); //update every 16 ms						
+			}, GAME_SPEED);						
 		}
 
 	};
@@ -136,17 +138,49 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 		var currSnakePacket = null;
 
-		for (var currPlayerId in mPlayers) {
-			//move
-			mPlayers[currPlayerId].Move();
+		var currPlayer = null;
 
-			//check collisions
-			//check food
+		//generate a new portion of food if amount of it is low
+		if (mFood.length < 10) {
+			mFood = mFood.concat(_generateFoodArray(mScene, initialAmountOfFood || 20));
+
+			console.log("A new portion of food was generated");
+		}
+
+		var cutPart = null;
+
+		for (var currPlayerId in mPlayers) {
+			currPlayer = mPlayers[currPlayerId];
+
+			if (currPlayer.mIsDead) {
+				continue;
+			}
+
+			//move
+			cutPart = currPlayer.Move();
+
+			for (var i = 0; i < mFood.length; ++i) {
+				if (currPlayer.Intersect(mFood[i])) {
+					currPlayer.Eat(mFood[i]);
+
+					_removeFood(i);
+
+					break;
+				}
+			}
+
+			if (cutPart != null) {
+				//create food cells from the snake's cut body
+				for (var i = 0; i < cutPart.length; ++i) {
+					mFood.push(new GameStructures.Food(cutPart[i]));
+				}
+			}
+
 			//check other snakes
 
 			currSnakePacket = [];
 
-			currSnakeBody = mPlayers[currPlayerId].GetBlocks();
+			currSnakeBody = currPlayer.GetBlocks();
 
 			currSnakeBodyLength = currSnakeBody.length;
 
@@ -155,9 +189,17 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 			}
 
 			packet.snakes[currPlayerId] = currSnakePacket;
-
-			console.log(packet);
 		}
+
+		var foodArray = [];
+
+		for (var i = 0; i < mFood.length; ++i) {
+			var foodPos = mFood[i].mPos;
+
+			foodArray[i] = { x : foodPos.x , y : foodPos.y };
+		}
+
+		packet.food = foodArray;	
 
 		if (onFinishedCallback != undefined) {
 			onFinishedCallback(packet);
@@ -180,6 +222,8 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 		mPlayers[playerId].ChangeDirection(_dirCodeToVector(dirCode));
 
+		console.log("player [" + playerId + "] changed direction (dirCode: " + dirCode + ")" );
+
 		return _result({});
 	};
 
@@ -198,7 +242,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		return new Vector2D();
 	};
 
-	var _initFoodArray = function(sceneInstance, maxNumOfEntities) {
+	var _generateFoodArray = function(sceneInstance, maxNumOfEntities) {
 		var foodArray = [];
 
 		var halfSizes = Vector2D.Mul(sceneInstance.mSizes, 0.5);
@@ -278,6 +322,17 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		return false;
 	};
 
+	var _removeFood = function(index) {
+		if (index == undefined ||
+			isNaN(index - 0) ||
+			index < -1 ||
+			index >= mFood.length) {
+			return false;
+		}
+
+		mFood.splice(index, 1);
+	};
+
 	var _error = function(code) {
 		return {
 			status : "fail",
@@ -297,7 +352,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 	function _init() {
 		mScene = new GameStructures.Scene(origin, sizes);
 
-		mFood = _initFoodArray(mScene, initialAmountOfFood || 20);
+		mFood = _generateFoodArray(mScene, initialAmountOfFood || 20);
 
 		mPlayers = {};
 
