@@ -69,12 +69,14 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 	var mFood    = null; //the stack that contains eaten food
 	var mCurrDir = null;
 
-	self.Cut = function(cutPoint) {
+	self.Cut = function(cutPoint, isSelfEating) {
 		var index = -1;
 
-		for (var i = 0; i < self.mBody.length; ++i) {
-			console.log(self.mBody[i]);
-			console.log(cutPoint);
+		isSelfEating = isSelfEating || false;
+
+		//if the situation is a self-eating we should skip a head cell
+		//because right now it has the same position as cut point
+		for (var i = isSelfEating ? 1 : 0; i < self.mBody.length; ++i) {
 			if (Vector2D.Equals(self.mBody[i], cutPoint)) {
 				index = i;
 
@@ -112,7 +114,7 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 			var collisionPoint = -1;
 
 			if ((collisionPoint = _checkCollision()) >= 0) {	//self-intersected
-				return self.Cut(self.mBody[collisionPoint]);
+				return self.Cut(self.mBody[collisionPoint], true);
 			}
 
 			return null;
@@ -133,8 +135,7 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 		var collisionPoint = -1;
 
 		if ((collisionPoint = _checkCollision()) >= 0) {	//self-intersected
-			console.log(self.mBody);
-			return self.Cut(self.mBody[collisionPoint]);
+			return self.Cut(self.mBody[collisionPoint], true);
 		}
 
 		return null;
