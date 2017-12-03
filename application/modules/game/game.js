@@ -4,7 +4,7 @@ var md5            = require("md5");
 
 
 function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
-	var GAME_SPEED = 250;
+	var GAME_SPEED = 200;
 
 	var ERROR_TYPES = {
 		1 : "The specified player's name already exists",
@@ -21,7 +21,8 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		ON_SYNCHRONIZE : "onsynchronize",
 		ON_SYNCHRONIZED : "onsynchronized",
 		ON_EXIT : "onexit",
-		ON_ERROR : "onerror"
+		ON_ERROR : "onerror",
+		ON_GAME_OVER : "ongameover"
 	};
 
 	var self              = this;
@@ -30,6 +31,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 	var mPlayersHashes    = null;
 	var mFood             = null;
 	var mTickEventHandler = 0;
+	var mClients          = null;
 
 	this.AddPlayer = function(color, name) {
 		if (name in mPlayers) {
@@ -101,6 +103,8 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 				console.log("User [" + playerData.playerId + "] joined the game");
 
 				socket.emit(SOCKET_MESSAGES.ON_JOINED, { "playerId" : playerData.playerId, "playerHash" : playerData.playerHash });
+
+				mClients[playerData.playerId] = socket;
 			});
 
 			socket.on(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, function(data) {
@@ -111,6 +115,8 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 				self.RemovePlayer(data);
 
 				socket.disconnect(true);
+
+				delete mClients[data.playerId];
 
 				console.log("The user [" + data.playerId + "] was disconnected");
 			});
@@ -153,6 +159,14 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 			currPlayer = mPlayers[currPlayerId];
 
 			if (currPlayer.mIsDead) {
+				console.log("The player [" + currPlayerId + "] died");
+
+				if (mClients[currPlayerId] != undefined) {
+					mClients.emit(SOCKET_MESSAGES.ON_GAME_OVER, { score: currPlayer.mScore });
+				}
+
+				delete mPlayers[currPlayerId];
+
 				continue;
 			}
 
@@ -357,6 +371,8 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		mPlayers = {};
 
 		mPlayersHashes = {};
+
+		mClients = {}; //store clients' sockets
 	}
 
 	_init();

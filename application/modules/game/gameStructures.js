@@ -73,12 +73,16 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 		var index = -1;
 
 		for (var i = 0; i < self.mBody.length; ++i) {
+			console.log(self.mBody[i]);
+			console.log(cutPoint);
 			if (Vector2D.Equals(self.mBody[i], cutPoint)) {
 				index = i;
 
 				break;
 			}
 		}
+
+		console.log(index);
 		
 		if (index == 0 && self.mBody.length == 1) {
 			return self.Die();
@@ -129,6 +133,7 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 		var collisionPoint = -1;
 
 		if ((collisionPoint = _checkCollision()) >= 0) {	//self-intersected
+			console.log(self.mBody);
 			return self.Cut(self.mBody[collisionPoint]);
 		}
 

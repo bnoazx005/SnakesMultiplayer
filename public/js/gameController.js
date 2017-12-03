@@ -7,7 +7,8 @@ function GameController(view) {
 		ON_SYNCHRONIZE : "onsynchronize",
 		ON_SYNCHRONIZED : "onsynchronized",
 		ON_EXIT : "onexit",
-		ON_ERROR : "onerror"
+		ON_ERROR : "onerror",
+		ON_GAME_OVER : "ongameover"
 	};
 
 	var mColorsArray = [
@@ -34,6 +35,7 @@ function GameController(view) {
 		mSocketInstance.on(SOCKET_MESSAGES.ON_JOINED, _setSessionData);
 		mSocketInstance.on(SOCKET_MESSAGES.ON_ERROR, _showErrorMessage);
 		mSocketInstance.on(SOCKET_MESSAGES.ON_SYNCHRONIZED, _updateFrame);
+		mSocketInstance.on(SOCKET_MESSAGES.ON_GAME_OVER, _notifyGameOver);
 	};
 
 	var _tryToLogin = function(loginName) {
@@ -61,6 +63,10 @@ function GameController(view) {
 
 	var _showErrorMessage = function(data) {
 		alert(data.text);
+	};
+
+	var _notifyGameOver = function(data) {
+		alert("GAME OVER" + data.score);
 	};
 
 	var _updateFrame = function(dataPacket) {
