@@ -155,6 +155,8 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 		var cutPart = null;
 
+		var intersectionData = null;
+
 		for (var currPlayerId in mPlayers) {
 			currPlayer = mPlayers[currPlayerId];
 
@@ -173,8 +175,26 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 			//move
 			cutPart = currPlayer.Move();
 
+			//check collisions with other players
+			for (var enemyId in mPlayers) {
+				if (enemyId == currPlayerId) {
+					continue;
+				}
+
+				//cut the enemy
+				if ((intersectionData = currPlayer.Intersect(mPlayers[enemyId])).result) {
+					var cutEnemyPart = mPlayers[enemyId].Cut(intersectionData.contactPoint);
+					
+					for (var i = 0; i < cutEnemyPart.length; ++i) {
+						mFood.push(new GameStructures.Food(cutEnemyPart[i]));
+					}
+
+					break; //a snake can eat only one enemy snake at a moment
+				}
+			}
+
 			for (var i = 0; i < mFood.length; ++i) {
-				if (currPlayer.Intersect(mFood[i])) {
+				if (currPlayer.Intersect(mFood[i]).result) {
 					currPlayer.Eat(mFood[i]);
 
 					_removeFood(i);
@@ -319,7 +339,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 			for (var i = 0; i< intersectablesArrayLength; ++i) {
 				if (intersectable != intersectablesArray[i] &&
-					intersectable.Intersect(intersectablesArray[i])) {
+					intersectable.Intersect(intersectablesArray[i]).result) {
 					return true;
 				}
 			}
@@ -327,7 +347,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		else {
 			for (var intersectableId in intersectablesArray) {
 				if (intersectable != intersectablesArray[intersectableId] &&
-					intersectable.Intersect(intersectablesArray[intersectableId])) {
+					intersectable.Intersect(intersectablesArray[intersectableId]).result) {
 					return true;
 				}
 			}

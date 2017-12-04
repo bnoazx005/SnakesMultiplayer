@@ -9,11 +9,26 @@ ExportedObject.Scene = function(origin, sizes) {
 
 ExportedObject.Intersectable = function() {
 	this.Intersect = function(intersectable) {
-		return false;
+		return _makeIntersectionResult(null);
 	};
 
 	this.GetBlocks = function() {
 		return [];
+	};
+
+	this._emptyIntersection = function() {
+		return _makeIntersectionResult(null);
+	};
+
+	this._intersected = function(point) {
+		return _makeIntersectionResult(point);
+	};
+
+	var _makeIntersectionResult = function(point) {
+		return {
+			result : point != undefined ? true : false,
+			contactPoint : point
+		};
 	};
 };
 
@@ -36,11 +51,11 @@ ExportedObject.Food = function(pos, type, weight) {
 
 		for (var i = 0; i < intersectableBlocksLength; ++i) {
 			if (Vector2D.Equals(self.mPos, intersectableBlocks[i])) {
-				return true;
+				return self.intersected(self.mPos);
 			}
 		}
 
-		return false;
+		return self._emptyIntersection();
 	};
 
 	self.GetBlocks = function() {
@@ -83,8 +98,6 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 				break;
 			}
 		}
-
-		console.log(index);
 		
 		if (index == 0 && self.mBody.length == 1) {
 			return self.Die();
@@ -179,12 +192,12 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 		for (var i = 0; i < bodyLength; ++i) {
 			for (var j = 0; j < intersectableBlocksLength; ++j) {
 				if (Vector2D.Equals(self.mBody[i], intersectableBlocks[j])) {
-					return true;
+					return self._intersected(intersectableBlocks[j]);
 				}
 			}
 		}
 
-		return false;
+		return self._emptyIntersection();
 	};
 
 	self.GetBlocks = function() {
