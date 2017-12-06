@@ -88,18 +88,28 @@ function GameController(view) {
 
 		request.playerData = mPlayerSessionData;
 
+		var actionBindings = Config.INPUT_ACTION_BINDINGS;
+
+		var zoomStep = Config.ZoomStep;
+
 		switch (event.keyCode) {
-			case 37: //left arrow key
+			case actionBindings.LEFT: //left arrow key
 				request.dirCode = 0;
 				break;
-			case 38: //up arrow key
+			case actionBindings.UP: //up arrow key
 				request.dirCode = 1;
 				break;
-			case 39: //right arrow key
+			case actionBindings.RIGHT: //right arrow key
 				request.dirCode = 2;
 				break;
-			case 40: //down arrow key
+			case actionBindings.DOWN: //down arrow key
 				request.dirCode = 3;
+				break;
+			case actionBindings.ZOOM_IN:
+				mView.SetZoomCoefficient(mView.GetZoomCoefficient() + zoomStep);
+				break;
+			case actionBindings.ZOOM_OUT:
+				mView.SetZoomCoefficient(mView.GetZoomCoefficient() - zoomStep);
 				break;
 		}
 

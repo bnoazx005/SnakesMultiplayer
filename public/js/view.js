@@ -27,6 +27,8 @@ function View() {
 
 	var mScoreLabel         = null;
 
+	var mZoomCoeff          = 10;
+
 	this.Free = function() {
 
 	};
@@ -101,7 +103,7 @@ function View() {
 		var food = dataPacket.food;
 
 		for (var i = 0; i < food.length; ++i) {
-			mRenderInstance.DrawQuad(new Vector2D(food[i].x, food[i].y), 10, "red");
+			mRenderInstance.DrawQuad(new Vector2D(food[i].x, food[i].y), mZoomCoeff, "red");
 		}
 
 		var snakes = dataPacket.snakes;
@@ -110,7 +112,7 @@ function View() {
 			var currSnake = snakes[snakeId];
 
 			for (var j = 0; j < currSnake.length; ++j) {
-				mRenderInstance.DrawQuad(new Vector2D(currSnake[j].x, currSnake[j].y), 10, "green");
+				mRenderInstance.DrawQuad(new Vector2D(currSnake[j].x, currSnake[j].y), mZoomCoeff, "green");
 			}
 		}
 	};
@@ -124,6 +126,14 @@ function View() {
 		self.EnablePage(PAGES.GAME_OVER_PAGE);
 
 		mScoreLabel.innerHTML = score;
+	};
+
+	this.SetZoomCoefficient = function(zoomCoeff) {
+		mZoomCoeff = Math.max(Config.MinZoomValue, Math.min(Config.MaxZoomValue, zoomCoeff));
+	};
+
+	this.GetZoomCoefficient = function() {
+		return mZoomCoeff;
 	};
 
 	var _loginButtonClicked = function(eventData) {
