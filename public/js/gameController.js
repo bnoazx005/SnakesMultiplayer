@@ -129,7 +129,6 @@ function GameController(view) {
 
 		if (request.dirCode != undefined) {
 			mSocketInstance.emit(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, request);
-			console.log("input: " + request.dirCode);
 		}
 	};
 

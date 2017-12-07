@@ -295,8 +295,6 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 		mPlayers[playerId].ChangeDirection(_dirCodeToVector(dirCode));
 
-		console.log("player [" + playerId + "] changed direction (dirCode: " + dirCode + ")" );
-
 		return _result({});
 	};
 
