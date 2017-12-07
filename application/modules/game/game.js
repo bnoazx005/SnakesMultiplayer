@@ -22,7 +22,8 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		ON_SYNCHRONIZED : "onsynchronized",
 		ON_EXIT : "onexit",
 		ON_ERROR : "onerror",
-		ON_GAME_OVER : "ongameover"
+		ON_GAME_OVER : "ongameover",
+		ON_RESTART : "onrestart"
 	};
 
 	var self              = this;
@@ -75,6 +76,27 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 		return _result({});
 	};
 
+	this.ResetPlayer = function(data) {
+		var playerId = data.playerId;
+		var color    = data.color;
+
+		if (playerId == undefined ||
+			color == undefined) {
+			return _error(1);
+		}
+
+		var player = null;
+
+		do {
+			player = new GameStructures.Snake(_generateSnakeBody(mScene, initialSnakeSize),
+											  GameStructures.MOVE_DIRECTIONS.RIGHT, 
+											  data.color, playerId);
+		}
+		while (_checkIntersections(player, mPlayers))
+
+		mPlayers[playerId] = player;
+	};
+
 	this.ProcessConnection = function(connection) {
 		if (connection == undefined) {
 			return;
@@ -105,6 +127,14 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 				socket.emit(SOCKET_MESSAGES.ON_JOINED, { "playerId" : playerData.playerId, "playerHash" : playerData.playerHash });
 
 				mClients[playerData.playerId] = socket;
+			});
+
+			socket.on(SOCKET_MESSAGES.ON_RESTART, function(data) {
+				if (data == undefined) {
+					return;
+				}
+
+				self.ResetPlayer(data); //recreates player's avatar
 			});
 
 			socket.on(SOCKET_MESSAGES.ON_CHANGE_DIRECTION, function(data) {
