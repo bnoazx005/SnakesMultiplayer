@@ -68,6 +68,16 @@ function GameController(view) {
 		mView.ShowGameOverScore(data.score);
 	};
 
+	var _restartSession = function(data) {
+		mSocketInstance.emit(SOCKET_MESSAGES.ON_RESTART, { 
+			playerId : mPlayerSessionData.playerId, 
+			playerHash : mPlayerSessionData.playerHash,
+			color : _getRandomColor() });
+
+		mView.DisablePage(mView.GetPagesNames().GAME_OVER_PAGE);
+		mView.SetActivePlayerUI(true);
+	};
+
 	var _updateFrame = function(dataPacket) {
 		if (dataPacket == undefined) {
 			return;
@@ -129,6 +139,7 @@ function GameController(view) {
 		var eventsTypes = mView.GetEventsTypes();
 
 		mView.Subscribe(eventsTypes.ON_LOGIN, _tryToLogin);
+		mView.Subscribe(eventsTypes.ON_RESTART, _restartSession);
 
 		mSocketInstance = io('http://localhost:3000');
 

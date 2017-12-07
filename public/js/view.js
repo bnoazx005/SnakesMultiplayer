@@ -1,6 +1,7 @@
 function View() {
 	var EVENT_TYPES = {
 		ON_LOGIN : "onlogin",
+		ON_RESTART : "onrestart"
 	};
 
 	var PAGES = {
@@ -33,8 +34,11 @@ function View() {
 
 	var mPlayerUIScore      = null;
 
-	this.Free = function() {
+	var mRestartButton      = null;
 
+	this.Free = function() {
+		mLoginButton.removeEventListener("click", _loginButtonClicked);
+		mRestartButton.removeEventListener("click", _restartButtonClicked);
 	};
 
 	this.GetPagesNames = function() {
@@ -170,6 +174,10 @@ function View() {
 		self.Notify(EVENT_TYPES.ON_LOGIN, mLoginTextbox.value);
 	};
 
+	var _restartButtonClicked = function(eventData) {
+		self.Notify(EVENT_TYPES.ON_RESTART, {});
+	};
+
 	function _init() {
 		mSubscribers = [];
 
@@ -180,6 +188,8 @@ function View() {
 		mPages = {};
 
 		mLoginButton = document.getElementById("login-button");
+
+		mRestartButton = document.getElementById("restart-button");
 
 		mLoginTextbox = document.getElementById("login-textbox");
 
@@ -197,6 +207,7 @@ function View() {
 		mRenderInstance = new Render(mGameFieldCanvas);
 
 		mLoginButton.addEventListener("click", _loginButtonClicked);
+		mRestartButton.addEventListener("click", _restartButtonClicked);
 
 		mScoreLabel = document.getElementById("score-label");
 
