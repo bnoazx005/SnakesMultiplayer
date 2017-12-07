@@ -222,7 +222,10 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 				currSnakePacket.push({ x : currSnakeBody[i].x, y : currSnakeBody[i].y });
 			}
 
-			packet.snakes[currPlayerId] = currSnakePacket;
+			packet.snakes[currPlayerId] = {
+				body : currSnakePacket,
+				color : currPlayer.mColor
+			};
 		}
 
 		var foodArray = [];

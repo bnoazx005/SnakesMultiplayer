@@ -12,10 +12,6 @@ function GameController(view) {
 		ON_RESTART : "onrestart"
 	};
 
-	var mColorsArray = [
-		"red", "green", "blue"
-	];
-
 	var mView           = null;
 
 	var mSocketInstance = null;
@@ -55,11 +51,11 @@ function GameController(view) {
 	};
 
 	var _getRandomColor = function() {
-		var numOfColors = mColorsArray.length;
+		var numOfColors = Config.ColorsArray.length;
 
 		var randIndex = Math.floor(Math.random() * numOfColors);
 
-		return mColorsArray[randIndex];
+		return Config.ColorsArray[randIndex];
 	};
 
 	var _showErrorMessage = function(data) {

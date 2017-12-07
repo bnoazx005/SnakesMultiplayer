@@ -16,5 +16,13 @@ var Config = (function() {
 
 	mExports.MaxZoomValue = 50;
 
+	mExports.ColorsArray = [
+		"green",
+		"blue",
+		"yellow",
+		"pink",
+		"purple"
+	];
+
 	return mExports;
 })();

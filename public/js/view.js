@@ -108,11 +108,16 @@ function View() {
 
 		var snakes = dataPacket.snakes;
 
-		for (var snakeId in snakes) {
-			var currSnake = snakes[snakeId];
+		var currSnake     = null;
+		var currSnakeBody = null;
 
-			for (var j = 0; j < currSnake.length; ++j) {
-				mRenderInstance.DrawQuad(new Vector2D(currSnake[j].x, currSnake[j].y), mZoomCoeff, "green");
+		for (var snakeId in snakes) {
+			currSnake = snakes[snakeId];
+
+			currSnakeBody = currSnake.body;
+
+			for (var j = 0; j < currSnakeBody.length; ++j) {
+				mRenderInstance.DrawQuad(new Vector2D(currSnakeBody[j].x, currSnakeBody[j].y), mZoomCoeff, currSnake.color);
 			}
 		}
 	};
