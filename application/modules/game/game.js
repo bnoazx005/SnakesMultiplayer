@@ -164,7 +164,7 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 				console.log("The player [" + currPlayerId + "] died");
 
 				if (mClients[currPlayerId] != undefined) {
-					mClients.emit(SOCKET_MESSAGES.ON_GAME_OVER, { score: currPlayer.mScore });
+					mClients[currPlayerId].emit(SOCKET_MESSAGES.ON_GAME_OVER, { score: currPlayer.mScore });
 				}
 
 				delete mPlayers[currPlayerId];

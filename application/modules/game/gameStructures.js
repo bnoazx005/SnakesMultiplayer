@@ -100,7 +100,7 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 			}
 		}
 		
-		if (index == 0 && self.mBody.length == 1) {
+		if (index == 0) {
 			return self.Die();
 		}
 
