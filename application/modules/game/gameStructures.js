@@ -51,7 +51,7 @@ ExportedObject.Food = function(pos, type, weight) {
 
 		for (var i = 0; i < intersectableBlocksLength; ++i) {
 			if (Vector2D.Equals(self.mPos, intersectableBlocks[i])) {
-				return self.intersected(self.mPos);
+				return self._intersected(self.mPos);
 			}
 		}
 
@@ -83,6 +83,7 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 
 	var mFood    = null; //the stack that contains eaten food
 	var mCurrDir = null;
+	var mHasInputApplied = true;
 
 	self.Cut = function(cutPoint, isSelfEating) {
 		var index = -1;
@@ -112,6 +113,8 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 
 	self.Move = function() {
 		var bodyLength = self.mBody.length;
+
+		mHasInputApplied = true;
 
 		if (mFood.length > 0) { //we have eaten food, so move a new created body's part not the tail
 			var headPart = self.mBody[0];
@@ -155,9 +158,11 @@ ExportedObject.Snake = function(body, initialDir, color, name) {
 	};
 
 	self.ChangeDirection = function(dir) {
-		if (!(dir instanceof Vector2D)) {
+		if (!(dir instanceof Vector2D) || !mHasInputApplied) {
 			return false;
 		}
+
+		mHasInputApplied = false; //it's used to prevent double direction's changing during a single step
 
 		// the current movement direction is opposite to the specified one
 		// in this case the snake will move without changing previous direction's value
