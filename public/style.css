@@ -9,3 +9,19 @@ canvas {
 	left: 0;
 	z-index: -9999;
 }
+
+#pages-container-div {
+	position: absolute;
+	left: 40%;
+	top: 25%;
+	width : 30%;
+	height : 15%;
+}
+
+#login-page-div, #game-over-div {
+	margin: 5% 5%;
+}
+
+.ui-text {
+	font-size: 18pt;
+}

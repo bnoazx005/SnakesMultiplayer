@@ -224,7 +224,8 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 
 			packet.snakes[currPlayerId] = {
 				body : currSnakePacket,
-				color : currPlayer.mColor
+				color : currPlayer.mColor,
+				score : currPlayer.mScore
 			};
 		}
 

@@ -10,13 +10,19 @@
 
 			<canvas id = "game-field-canvas"></canvas>
 
-			<div id = "login-page-div">
-				<input type="text" id="login-textbox" placeholder="login"/>
-				<input type="button" id="login-button" value="Подключиться"/>
+			<div id = "player-ui-div">
+				<p class = "ui-text">Score: <text id = "current-score-label"></text></p>
 			</div>
-			<div id = "game-over-div">
-				<p>Ваш счёт: <text id="score-label"></text></p>
-				<input type="button" id="restart-button" value="Повтор"/>
+
+			<div id = "pages-container-div">
+				<div id = "login-page-div">
+					<input type="text" id="login-textbox" placeholder="login"/>
+					<input type="button" id="login-button" value="Подключиться"/>
+				</div>
+				<div id = "game-over-div">
+					<p>Ваш счёт: <text id="score-label"></text></p>
+					<input type="button" id="restart-button" value="Повтор"/>
+				</div>
 			</div>
 		</div>
 		<script type="text/javascript" src="js/math/vector2d.js"></script>

@@ -48,6 +48,8 @@ function GameController(view) {
 		console.log("Player [" + playerData.playerId + "] joined the game");
 
 		mView.DisablePage(mView.GetPagesNames().LOGIN_PAGE);
+
+		mView.SetActivePlayerUI(true);
 	};
 
 	var _getRandomColor = function() {
@@ -69,6 +71,12 @@ function GameController(view) {
 	var _updateFrame = function(dataPacket) {
 		if (dataPacket == undefined) {
 			return;
+		}
+
+		if (mPlayerSessionData != undefined) {
+			mView.UpdateUI({
+				score: dataPacket.snakes[mPlayerSessionData.playerId].score
+			});
 		}
 
 		//we get the data from server, now we can use it to refresh the view

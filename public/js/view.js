@@ -29,6 +29,10 @@ function View() {
 
 	var mZoomCoeff          = 10;
 
+	var mPlayerUIRoot       = null;
+
+	var mPlayerUIScore      = null;
+
 	this.Free = function() {
 
 	};
@@ -141,6 +145,27 @@ function View() {
 		return mZoomCoeff;
 	};
 
+	this.UpdateUI = function(data) {
+		var playerScore = data.score;
+
+		mPlayerUIScore.innerHTML = playerScore;
+	};
+
+	this.SetActivePlayerUI = function(value) {
+		switch (value) {
+			case true:
+				if (mPlayerUIRoot.classList.contains("inactive")) {
+					mPlayerUIRoot.classList.remove("inactive");
+				}
+				break;
+			case false:
+				if (!mPlayerUIRoot.classList.contains("inactive")) {
+					mPlayerUIRoot.classList.add("inactive");
+				}
+				break;
+		}
+	};
+
 	var _loginButtonClicked = function(eventData) {
 		self.Notify(EVENT_TYPES.ON_LOGIN, mLoginTextbox.value);
 	};
@@ -174,6 +199,12 @@ function View() {
 		mLoginButton.addEventListener("click", _loginButtonClicked);
 
 		mScoreLabel = document.getElementById("score-label");
+
+		mPlayerUIRoot = document.getElementById("player-ui-div");
+
+		mPlayerUIScore = document.getElementById("current-score-label");
+
+		self.SetActivePlayerUI(false);
 	}	
 
 	_init();

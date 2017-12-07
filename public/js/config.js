@@ -10,11 +10,11 @@ var Config = (function() {
 		ZOOM_OUT : 173
 	};
 
-	mExports.ZoomStep = 10;
+	mExports.ZoomStep = 5;
 
 	mExports.MinZoomValue = 5;
 
-	mExports.MaxZoomValue = 50;
+	mExports.MaxZoomValue = 30;
 
 	mExports.ColorsArray = [
 		"green",
