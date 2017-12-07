@@ -77,12 +77,17 @@ function Game(origin, sizes, initialAmountOfFood, initialSnakeSize) {
 	};
 
 	this.ResetPlayer = function(data) {
-		var playerId = data.playerId;
-		var color    = data.color;
+		var playerId   = data.playerId;
+		var color      = data.color;
+		var playerHash = data.playerHash;
 
 		if (playerId == undefined ||
 			color == undefined) {
 			return _error(1);
+		}
+
+		if (playerHash != mPlayersHashes[playerId]) {
+			return _error(2);
 		}
 
 		var player = null;
